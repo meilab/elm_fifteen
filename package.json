@@ -1,0 +1,25 @@
+{
+  "name": "ElmFifteen",
+  "version": "1.0.0",
+  "description": "Fifteen game in Elm with solver",
+  "scripts": {
+    "starte": "electron electron/main.js",
+    "precompile": "rm -f elm.js",
+    "compile": "elm-make src/Main.elm --output elm.js",
+    "compilew": "elm-make src/WxMain.elm --output weixin/elm.js",
+    "watch": "elm-live src/Main.elm --output elm.js --debug --open",
+    "watchw": "elm-live src/WxMain.elm --output weixin/elm.js --debug --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atom/electron-quick-start.git"
+  },
+  "keywords": [
+    "Elm",
+    "fifteen",
+    "PWA",
+    "weixin"
+  ],
+  "author": "meilab",
+  "license": "MIT"
+}

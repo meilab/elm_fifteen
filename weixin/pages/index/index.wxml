@@ -1,0 +1,29 @@
+<!--index.wxml-->
+<view class="container">
+  <view  bindtap="bindViewTap" class="userinfo">
+    <image class="userinfo-avatar" src="{{userInfo.avatarUrl}}" background-size="cover"></image>
+    <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+  </view>
+  <view>
+    <label>主密码</label>
+    <input bindinput="onPhraseInput"></input>
+  </view>
+  <view>
+    <label>服务名称</label>
+    <input bindinput="onServiceInput"></input>
+  </view>
+  <view>
+    <label>密码长度</label>
+    <input bindinput="onPwLengthInput"></input>
+  </view>
+  <view>
+    <label>密码模式</label>
+    <input bindinput="onPwModeChange"></input>
+  </view>
+  <view class="usermotto">
+    <text class="user-motto">{{password}}</text>
+  </view>
+  <view class="usermotto">
+    <text class="user-motto">{{motto}}</text>
+  </view>
+</view>

@@ -1,0 +1,24 @@
+.container {
+    position: relative;
+    width: 60vh;
+    margin: 30px auto;
+}
+
+.hole,
+.tile {
+    float: left;
+    width: 15vh;
+    height: 15vh;
+    box-sizing: border-box;
+    cursor: pointer;
+    line-height: 15vh;
+    text-align:center;
+    font-size: 7vh;
+    font-weight: bold;
+    border: 1px solid black;
+}
+
+.hole {
+    background-color: #CECECE;
+    cursor : not-allowed;
+}
