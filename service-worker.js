@@ -15,11 +15,11 @@
 var dataCacheName = 'elm-fifteen-data-v1';
 var cacheName = 'elm-fifteen-1';
 var filesToCache = [
-  "/",
-  "/index.html",
-  "/elm.js",
-  "/css/style.css",
-  "/images/elm.png"
+  "./",
+  "./index.html",
+  "./elm.js",
+  "./css/style.css",
+  "./images/elm.png"
 ];
 
 self.addEventListener('install', function(e) {
