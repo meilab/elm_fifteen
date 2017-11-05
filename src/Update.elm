@@ -76,7 +76,7 @@ update msg model =
                     in
                         ( { model
                             | board = newBoard
-                            , status = verify newBoard model.dimension
+                            , status = verify newBoard model.dimension model.status
                             , holeCoord = newHoleCoord
                             , distance = newDistance
                             , moves = model.moves + 1
@@ -103,20 +103,6 @@ update msg model =
                 )
             )
 
-        {-
-           case
-               findSolution { model | moves = 0, directions = []} (boardDistance model.board module.dimension) upperBound
-           of
-               Nothing ->
-                   ( model, Cmd.none )
-
-               Just value ->
-                   let
-                       newStatus =
-                           ShowSolver
-                   in
-                       ( { model | status = newStatus, directions = value.directions }, Cmd.none )
-        -}
         SolutionFound (Ok directions) ->
             ( { model | status = ShowSolver, directions = directions |> List.reverse }, delay Time.second <| PlaySolverResult )
 

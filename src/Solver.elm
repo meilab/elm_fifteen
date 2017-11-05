@@ -13,12 +13,12 @@ upperBound =
     100
 
 
-verify : Board -> Int -> GameStatus
-verify board dimension =
+verify : Board -> Int -> GameStatus -> GameStatus
+verify board dimension curStatus =
     if isFinished board dimension then
         Finished
     else
-        Playing
+        curStatus
 
 
 manhattan : Coord -> Tile -> Int -> Int
@@ -129,7 +129,7 @@ updateModel model direction category =
         else
             ({ model
                 | board = newBoard
-                , status = verify newBoard model.dimension
+                , status = verify newBoard model.dimension model.status
                 , holeCoord = newHoleCoord
                 , distance = newDistance
                 , moves = model.moves + 1

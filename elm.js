@@ -10293,9 +10293,9 @@ var _meilab$elm_wexin_crypto$Solver$dfs = F7(
 			},
 			possibleDirections));
 	});
-var _meilab$elm_wexin_crypto$Solver$verify = F2(
-	function (board, dimension) {
-		return A2(_meilab$elm_wexin_crypto$Board$isFinished, board, dimension) ? _meilab$elm_wexin_crypto$Types$Finished : _meilab$elm_wexin_crypto$Types$Playing;
+var _meilab$elm_wexin_crypto$Solver$verify = F3(
+	function (board, dimension, curStatus) {
+		return A2(_meilab$elm_wexin_crypto$Board$isFinished, board, dimension) ? _meilab$elm_wexin_crypto$Types$Finished : curStatus;
 	});
 var _meilab$elm_wexin_crypto$Solver$updateModel = F3(
 	function (model, direction, category) {
@@ -10328,7 +10328,7 @@ var _meilab$elm_wexin_crypto$Solver$updateModel = F3(
 			model,
 			{
 				board: newBoard,
-				status: A2(_meilab$elm_wexin_crypto$Solver$verify, newBoard, model.dimension),
+				status: A3(_meilab$elm_wexin_crypto$Solver$verify, newBoard, model.dimension, model.status),
 				holeCoord: newHoleCoord,
 				distance: newDistance,
 				moves: model.moves + 1,
@@ -10513,7 +10513,7 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 							model,
 							{
 								board: newBoard,
-								status: A2(_meilab$elm_wexin_crypto$Solver$verify, newBoard, model.dimension),
+								status: A3(_meilab$elm_wexin_crypto$Solver$verify, newBoard, model.dimension, model.status),
 								holeCoord: newHoleCoord,
 								distance: newDistance,
 								moves: model.moves + 1
