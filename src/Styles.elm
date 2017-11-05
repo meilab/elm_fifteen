@@ -1,7 +1,5 @@
 module Styles exposing (..)
 
-import List exposing (append)
-
 
 type alias Styles =
     List ( String, String )
@@ -9,35 +7,37 @@ type alias Styles =
 
 container : Int -> Styles
 container dimension =
-    [ ( "position", "relative" )
-    , ( "width", (toString (dimension * 15)) ++ "vh" )
-    , ( "margin", "30px auto" )
+    [ ( "display", "flex " )
+    , ( "flex-direction", "column" )
+    , ( "justify-content", "center" )
+    , ( "width", (toString (dimension * 98 + 40)) ++ "px" )
+    , ( "background-color", "#222" )
+
+    --, ( "height", (toString (dimension * 98 + 40)) ++ "px" )
+    --, ( "height", "100vh" )
     ]
 
 
-tile : Styles
-tile =
-    [ ( "float", "left" )
-    , ( "width", "15vh" )
-    , ( "height", "15vh" )
-    , ( "box-sizing", "border-box" )
-    , ( "border-radius", "5%" )
-    , ( "cursor", "pointer" )
-    , ( "line-height", "15vh" )
-    , ( "text-align", "center" )
-    , ( "font-size", "7vh" )
-    , ( "font-weight", "bold" )
-    , ( "border", "1px solid black" )
+board : Int -> Styles
+board dimension =
+    [ ( "height", (toString (dimension * 98 + 40)) ++ "px" )
     ]
 
 
-hole : Styles
-hole =
-    append
-        tile
-        [ ( "background-color", "#CECECE" )
-        , ( "cursor", "not-allowed" )
-        ]
+row : Int -> Styles
+row dimension =
+    [ ( "display", "flex " )
+    , ( "justify-content", "space-around" )
+    , ( "width", (toString (dimension * 98 + 40)) ++ "px" )
+    ]
+
+
+controller : Int -> Styles
+controller dimension =
+    [ ( "display", "flex " )
+    , ( "justify-content", "space-around" )
+    , ( "width", (toString (dimension * 98 + 40)) ++ "px" )
+    ]
 
 
 victoryOverlay : Styles

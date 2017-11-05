@@ -13,66 +13,107 @@ import Styles
 view : Model -> Html Msg
 view model =
     div [ style (Styles.container model.dimension) ]
-        ([ (renderBoard model.board model.dimension) ] ++ (renderFinishedScreen model.status))
+        [ (renderBoard model.board model.dimension)
+        , renderFinishedScreen model.status
+        ]
 
 
 renderBoard : Board -> Int -> Html Msg
 renderBoard board dimension =
-    div []
-        (concatMap (renderRow board dimension) (range 1 dimension))
+    div
+        [ class "board"
+        , style (Styles.board dimension)
+        ]
+        (map (renderRow board dimension) (range 1 dimension))
 
 
-renderRow : Board -> Int -> Row -> List (Html Msg)
+renderRow : Board -> Int -> Row -> Html Msg
 renderRow board dimension row =
-    append
-        (map (renderTile board row) (range 1 dimension))
-        [ div [ class "line-break" ] [] ]
+    div
+        [ class "row"
+        ]
+        (map (renderTile board dimension row) (range 1 dimension))
 
 
-renderTile : Board -> Row -> Column -> Html Msg
-renderTile board row column =
+renderTile : Board -> Int -> Row -> Column -> Html Msg
+renderTile board dimension row column =
     case get ( row, column ) board of
         Nothing ->
             div [ class "hole" ] []
 
         Just tile ->
-            div
-                [ class "tile"
-                , onClick (TileClicked tile ( row, column ))
-                ]
-                [ text (toString tile) ]
+            let
+                tileClass =
+                    case tile % 2 of
+                        0 ->
+                            "dark-tile"
+
+                        _ ->
+                            "light-tile"
+            in
+                div
+                    [ class tileClass
+                    , onClick (TileClicked tile ( row, column ))
+                    ]
+                    [ text (toString tile) ]
 
 
-renderFinishedScreen : GameStatus -> List (Html Msg)
+renderFinishedScreen : GameStatus -> Html Msg
 renderFinishedScreen status =
     case status of
         Playing ->
-            [ div [ onClick Recall ] [ text "Recall" ]
-            , div [ onClick Resolve ] [ text "Resolve" ]
-            , div []
-                [ label [] [ text "change dimension" ]
-                , input [ onInput ChangeDimension ] [ text "hello" ]
+            div [ class "controller" ]
+                [ div
+                    [ class "replay-button"
+                    , onClick Replay
+                    ]
+                    [ text "Replay" ]
+                , div
+                    [ class "undo-button"
+                    , onClick Undo
+                    ]
+                    [ text "Undo" ]
+                , div
+                    [ class "solve-button"
+                    , onClick Resolve
+                    ]
+                    [ text "Solve" ]
+
+                {-
+                   , div []
+                       [ label [] [ text "change dimension" ]
+                       , input [ onInput ChangeDimension ] [ text "hello" ]
+                       ]
+                -}
                 ]
-            ]
+
+        Solving ->
+            div [ class "controller" ]
+                [ text "solving"
+                , button
+                    [ class "replay-button"
+                    , onClick Replay
+                    ]
+                    [ text "Play Again" ]
+                ]
+
+        ShowSolver ->
+            div [ class "controller" ]
+                [ div
+                    [ class "replay-button"
+                    , onClick Replay
+                    ]
+                    [ text "Replay" ]
+                ]
 
         Finished ->
-            [ div [ class "victory" ]
-                [ h3 [ class "victory-title" ] [ text "YOU WIN" ]
-                , button
-                    [ class "replay-button"
-                    , onClick Replay
+            div [ class "controller" ]
+                [ div [ class "victory" ]
+                    [ h3 [ class "victory-title" ] [ text "YOU WIN" ]
+                    , button
+                        [ class "replay-button"
+                        , onClick Replay
+                        ]
+                        [ text "Play Again" ]
                     ]
-                    [ text "Play Again" ]
                 ]
-            ]
-
-        _ ->
-            [ div []
-                [ text "solve"
-                , button
-                    [ class "replay-button"
-                    , onClick Replay
-                    ]
-                    [ text "Play Again" ]
-                ]
-            ]

@@ -84,7 +84,7 @@ update msg model =
                         , Cmd.none
                         )
 
-        Recall ->
+        Undo ->
             case List.head model.directions of
                 Just direction ->
                     ( model, delay (Time.second * 2) <| DirectionMove (opposite direction) PopDirection )

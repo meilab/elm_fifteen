@@ -11,7 +11,7 @@ type Msg
     | OtherKeyPressed KeyCode
     | ChangeDimension String
     | Replay
-    | Recall
+    | Undo
     | Resolve
     | SolutionFound (Result String (List Direction))
     | PlaySolverResult
