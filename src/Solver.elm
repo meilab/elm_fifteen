@@ -119,7 +119,7 @@ updateModel model direction category =
         newDirections =
             case category of
                 PushDirection ->
-                    model.directions ++ [ direction ]
+                    direction :: model.directions
 
                 PopDirection ->
                     Maybe.withDefault [] (List.tail model.directions)

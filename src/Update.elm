@@ -87,7 +87,7 @@ update msg model =
         Undo ->
             case List.head model.directions of
                 Just direction ->
-                    ( model, delay (Time.second * 2) <| DirectionMove (opposite direction) PopDirection )
+                    ( model, cmd <| DirectionMove (opposite direction) PopDirection )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -118,8 +118,7 @@ update msg model =
                        ( { model | status = newStatus, directions = value.directions }, Cmd.none )
         -}
         SolutionFound (Ok directions) ->
-            Debug.log (toString (directions))
-                ( { model | status = ShowSolver, directions = directions }, delay Time.second <| PlaySolverResult )
+            ( { model | status = ShowSolver, directions = directions |> List.reverse }, delay Time.second <| PlaySolverResult )
 
         SolutionFound (Err error) ->
             Debug.log ("Failed to solve")

@@ -14,7 +14,7 @@ view : Model -> Html Msg
 view model =
     div [ style (Styles.container model.dimension) ]
         [ (renderBoard model.board model.dimension)
-        , renderFinishedScreen model.status
+        , renderControlPanel model.status
         ]
 
 
@@ -58,8 +58,8 @@ renderTile board dimension row column =
                     [ text (toString tile) ]
 
 
-renderFinishedScreen : GameStatus -> Html Msg
-renderFinishedScreen status =
+renderControlPanel : GameStatus -> Html Msg
+renderControlPanel status =
     case status of
         Playing ->
             div [ class "controller" ]
