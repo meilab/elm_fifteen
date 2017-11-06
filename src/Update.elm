@@ -96,7 +96,7 @@ update msg model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        Resolve ->
+        Solve ->
             ( { model | status = Solving }
             , Task.attempt
                 SolutionFound
@@ -117,16 +117,26 @@ update msg model =
         PlaySolverResult ->
             case List.head model.directions of
                 Just direction ->
-                    ( model
-                    , Cmd.batch
-                        [ cmd (DirectionMove direction PopDirection)
-                        , delay Time.second <| PlaySolverResult
-                        ]
-                    )
+                    case model.status of
+                        ShowSolver ->
+                            ( model
+                            , Cmd.batch
+                                [ cmd (DirectionMove direction PopDirection)
+                                , delay Time.second <| PlaySolverResult
+                                ]
+                            )
+
+                        _ ->
+                            ( model, Cmd.none )
 
                 Nothing ->
-                    Debug.log ("Solver Finished")
-                        ( { model | status = Finished }, Cmd.none )
+                    ( { model | status = Finished }, Cmd.none )
+
+        Pause ->
+            ( { model | status = Paused }, Cmd.none )
+
+        ResumePlaySolverResult ->
+            ( { model | status = ShowSolver }, delay Time.second <| PlaySolverResult )
 
         _ ->
             ( model, Cmd.none )

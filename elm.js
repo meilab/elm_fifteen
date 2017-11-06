@@ -9924,6 +9924,7 @@ var _meilab$elm_wexin_crypto$Types$Left = {ctor: 'Left'};
 var _meilab$elm_wexin_crypto$Types$PopDirection = {ctor: 'PopDirection'};
 var _meilab$elm_wexin_crypto$Types$PushDirection = {ctor: 'PushDirection'};
 var _meilab$elm_wexin_crypto$Types$Finished = {ctor: 'Finished'};
+var _meilab$elm_wexin_crypto$Types$Paused = {ctor: 'Paused'};
 var _meilab$elm_wexin_crypto$Types$ShowSolver = {ctor: 'ShowSolver'};
 var _meilab$elm_wexin_crypto$Types$Solving = {ctor: 'Solving'};
 var _meilab$elm_wexin_crypto$Types$Playing = {ctor: 'Playing'};
@@ -10173,11 +10174,13 @@ var _meilab$elm_wexin_crypto$Board$findAdjacentHole = F3(
 				{ctor: '_Tuple2', _0: _p25._0, _1: _p25._1}));
 	});
 
+var _meilab$elm_wexin_crypto$Messages$ResumePlaySolverResult = {ctor: 'ResumePlaySolverResult'};
+var _meilab$elm_wexin_crypto$Messages$Pause = {ctor: 'Pause'};
 var _meilab$elm_wexin_crypto$Messages$PlaySolverResult = {ctor: 'PlaySolverResult'};
 var _meilab$elm_wexin_crypto$Messages$SolutionFound = function (a) {
 	return {ctor: 'SolutionFound', _0: a};
 };
-var _meilab$elm_wexin_crypto$Messages$Resolve = {ctor: 'Resolve'};
+var _meilab$elm_wexin_crypto$Messages$Solve = {ctor: 'Solve'};
 var _meilab$elm_wexin_crypto$Messages$Undo = {ctor: 'Undo'};
 var _meilab$elm_wexin_crypto$Messages$Replay = {ctor: 'Replay'};
 var _meilab$elm_wexin_crypto$Messages$ChangeDimension = function (a) {
@@ -10539,7 +10542,7 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
-			case 'Resolve':
+			case 'Solve':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -10582,33 +10585,51 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 			case 'PlaySolverResult':
 				var _p7 = _elm_lang$core$List$head(model.directions);
 				if (_p7.ctor === 'Just') {
+					var _p8 = model.status;
+					if (_p8.ctor === 'ShowSolver') {
+						return {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: _elm_lang$core$Platform_Cmd$batch(
+								{
+									ctor: '::',
+									_0: _meilab$elm_wexin_crypto$Utils$cmd(
+										A2(_meilab$elm_wexin_crypto$Messages$DirectionMove, _p7._0, _meilab$elm_wexin_crypto$Types$PopDirection)),
+									_1: {
+										ctor: '::',
+										_0: A2(_meilab$elm_wexin_crypto$Utils$delay, _elm_lang$core$Time$second, _meilab$elm_wexin_crypto$Messages$PlaySolverResult),
+										_1: {ctor: '[]'}
+									}
+								})
+						};
+					} else {
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					}
+				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: model,
-						_1: _elm_lang$core$Platform_Cmd$batch(
-							{
-								ctor: '::',
-								_0: _meilab$elm_wexin_crypto$Utils$cmd(
-									A2(_meilab$elm_wexin_crypto$Messages$DirectionMove, _p7._0, _meilab$elm_wexin_crypto$Types$PopDirection)),
-								_1: {
-									ctor: '::',
-									_0: A2(_meilab$elm_wexin_crypto$Utils$delay, _elm_lang$core$Time$second, _meilab$elm_wexin_crypto$Messages$PlaySolverResult),
-									_1: {ctor: '[]'}
-								}
-							})
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{status: _meilab$elm_wexin_crypto$Types$Finished}),
+						_1: _elm_lang$core$Platform_Cmd$none
 					};
-				} else {
-					return A2(
-						_elm_lang$core$Debug$log,
-						'Solver Finished',
-						{
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{status: _meilab$elm_wexin_crypto$Types$Finished}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						});
 				}
+			case 'Pause':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{status: _meilab$elm_wexin_crypto$Types$Paused}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'ResumePlaySolverResult':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{status: _meilab$elm_wexin_crypto$Types$ShowSolver}),
+					_1: A2(_meilab$elm_wexin_crypto$Utils$delay, _elm_lang$core$Time$second, _meilab$elm_wexin_crypto$Messages$PlaySolverResult)
+				};
 			default:
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
@@ -10775,93 +10796,33 @@ var _meilab$elm_wexin_crypto$Styles$container = function (dimension) {
 	};
 };
 
-var _meilab$elm_wexin_crypto$Views$renderControlPanel = function (status) {
-	var _p0 = status;
-	switch (_p0.ctor) {
-		case 'Playing':
-			return A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('controller'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('replay-button'),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Replay),
-								_1: {ctor: '[]'}
-							}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Replay'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {
+var _meilab$elm_wexin_crypto$Views$renderControlPanel = F2(
+	function (status, directions) {
+		var _p0 = status;
+		switch (_p0.ctor) {
+			case 'Playing':
+				var undoClass = function () {
+					var _p1 = directions;
+					if (_p1.ctor === '[]') {
+						return 'disabled-button dark-button';
+					} else {
+						return 'control-button dark-button';
+					}
+				}();
+				return A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('controller-container'),
+						_1: {ctor: '[]'}
+					},
+					{
 						ctor: '::',
 						_0: A2(
 							_elm_lang$html$Html$div,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('undo-button'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Undo),
-									_1: {ctor: '[]'}
-								}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('Undo'),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('solve-button'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Resolve),
-										_1: {ctor: '[]'}
-									}
-								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('Solve'),
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						}
-					}
-				});
-		case 'Solving':
-			return A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('controller'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('solving'),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$button,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('replay-button'),
+								_0: _elm_lang$html$Html_Attributes$class('control-button dark-button'),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Replay),
@@ -10870,103 +10831,219 @@ var _meilab$elm_wexin_crypto$Views$renderControlPanel = function (status) {
 							},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text('Play Again'),
+								_0: _elm_lang$html$Html$text('Replay'),
 								_1: {ctor: '[]'}
 							}),
-						_1: {ctor: '[]'}
-					}
-				});
-		case 'ShowSolver':
-			return A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('controller'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('replay-button'),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Replay),
-								_1: {ctor: '[]'}
-							}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Replay'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				});
-		default:
-			return A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('controller'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('victory'),
-							_1: {ctor: '[]'}
-						},
-						{
+						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$h3,
+								_elm_lang$html$Html$div,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('victory-title'),
-									_1: {ctor: '[]'}
+									_0: _elm_lang$html$Html_Attributes$class(undoClass),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Undo),
+										_1: {ctor: '[]'}
+									}
 								},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('YOU WIN'),
+									_0: _elm_lang$html$Html$text('Undo'),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$button,
+									_elm_lang$html$Html$div,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('replay-button'),
+										_0: _elm_lang$html$Html_Attributes$class('control-button dark-button'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Replay),
+											_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Solve),
 											_1: {ctor: '[]'}
 										}
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('Play Again'),
+										_0: _elm_lang$html$Html$text('Solve'),
 										_1: {ctor: '[]'}
 									}),
 								_1: {ctor: '[]'}
 							}
-						}),
-					_1: {ctor: '[]'}
-				});
-	}
-};
+						}
+					});
+			case 'Solving':
+				return A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('controller-container'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('solving, have fun:)'),
+						_1: {ctor: '[]'}
+					});
+			case 'ShowSolver':
+				return A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('controller-container'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('control-button dark-button'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Replay),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Replay'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('control-button dark-button'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Pause),
+										_1: {ctor: '[]'}
+									}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Pause'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
+					});
+			case 'Paused':
+				return A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('controller-container'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('control-button dark-button'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Replay),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Replay'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('control-button dark-button'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$ResumePlaySolverResult),
+										_1: {ctor: '[]'}
+									}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Resume'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
+					});
+			default:
+				return A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('controller-container'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('victory'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$h3,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('victory-title'),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('YOU WIN'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$button,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('control-button dark-button'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(_meilab$elm_wexin_crypto$Messages$Replay),
+												_1: {ctor: '[]'}
+											}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Play Again'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {ctor: '[]'}
+					});
+		}
+	});
 var _meilab$elm_wexin_crypto$Views$renderTile = F4(
 	function (board, dimension, row, column) {
-		var _p1 = A2(
+		var _p2 = A2(
 			_elm_lang$core$Dict$get,
 			{ctor: '_Tuple2', _0: row, _1: column},
 			board);
-		if (_p1.ctor === 'Nothing') {
+		if (_p2.ctor === 'Nothing') {
 			return A2(
 				_elm_lang$html$Html$div,
 				{
@@ -10976,13 +11053,13 @@ var _meilab$elm_wexin_crypto$Views$renderTile = F4(
 				},
 				{ctor: '[]'});
 		} else {
-			var _p3 = _p1._0;
+			var _p4 = _p2._0;
 			var tileClass = function () {
-				var _p2 = A2(_elm_lang$core$Basics_ops['%'], _p3, 2);
-				if (_p2 === 0) {
-					return 'dark-tile';
+				var _p3 = A2(_elm_lang$core$Basics_ops['%'], _p4, 2);
+				if (_p3 === 0) {
+					return 'dark-tile dark-button';
 				} else {
-					return 'light-tile';
+					return 'light-tile light-button';
 				}
 			}();
 			return A2(
@@ -10995,7 +11072,7 @@ var _meilab$elm_wexin_crypto$Views$renderTile = F4(
 						_0: _elm_lang$html$Html_Events$onClick(
 							A2(
 								_meilab$elm_wexin_crypto$Messages$TileClicked,
-								_p3,
+								_p4,
 								{ctor: '_Tuple2', _0: row, _1: column})),
 						_1: {ctor: '[]'}
 					}
@@ -11003,7 +11080,7 @@ var _meilab$elm_wexin_crypto$Views$renderTile = F4(
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html$text(
-						_elm_lang$core$Basics$toString(_p3)),
+						_elm_lang$core$Basics$toString(_p4)),
 					_1: {ctor: '[]'}
 				});
 		}
@@ -11055,7 +11132,7 @@ var _meilab$elm_wexin_crypto$Views$view = function (model) {
 			_0: A2(_meilab$elm_wexin_crypto$Views$renderBoard, model.board, model.dimension),
 			_1: {
 				ctor: '::',
-				_0: _meilab$elm_wexin_crypto$Views$renderControlPanel(model.status),
+				_0: A2(_meilab$elm_wexin_crypto$Views$renderControlPanel, model.status, model.directions),
 				_1: {ctor: '[]'}
 			}
 		});

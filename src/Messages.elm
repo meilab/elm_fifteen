@@ -12,6 +12,8 @@ type Msg
     | ChangeDimension String
     | Replay
     | Undo
-    | Resolve
+    | Solve
     | SolutionFound (Result String (List Direction))
     | PlaySolverResult
+    | Pause
+    | ResumePlaySolverResult

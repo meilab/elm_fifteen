@@ -14,7 +14,7 @@ view : Model -> Html Msg
 view model =
     div [ style (Styles.container model.dimension) ]
         [ (renderBoard model.board model.dimension)
-        , renderControlPanel model.status
+        , renderControlPanel model.status model.directions
         ]
 
 
@@ -46,10 +46,10 @@ renderTile board dimension row column =
                 tileClass =
                     case tile % 2 of
                         0 ->
-                            "dark-tile"
+                            "dark-tile dark-button"
 
                         _ ->
-                            "light-tile"
+                            "light-tile light-button"
             in
                 div
                     [ class tileClass
@@ -58,60 +58,91 @@ renderTile board dimension row column =
                     [ text (toString tile) ]
 
 
-renderControlPanel : GameStatus -> Html Msg
-renderControlPanel status =
+renderControlPanel : GameStatus -> List Direction -> Html Msg
+renderControlPanel status directions =
     case status of
         Playing ->
-            div [ class "controller" ]
-                [ div
-                    [ class "replay-button"
-                    , onClick Replay
+            let
+                undoClass =
+                    case directions of
+                        [] ->
+                            "disabled-button dark-button"
+
+                        _ ->
+                            "control-button dark-button"
+            in
+                div [ class "controller-container" ]
+                    [ div
+                        [ class "control-button dark-button"
+                        , onClick Replay
+                        ]
+                        [ text "Replay" ]
+                    , div
+                        [ class undoClass
+                        , onClick Undo
+                        ]
+                        [ text "Undo" ]
+                    , div
+                        [ class "control-button dark-button"
+                        , onClick Solve
+                        ]
+                        [ text "Solve" ]
+
+                    {-
+                       , div []
+                           [ label [] [ text "change dimension dark-button" ]
+                           , input [ onInput ChangeDimension ] [ text "hello" ]
+                           ]
+                    -}
                     ]
-                    [ text "Replay" ]
-                , div
-                    [ class "undo-button"
-                    , onClick Undo
-                    ]
-                    [ text "Undo" ]
-                , div
-                    [ class "solve-button"
-                    , onClick Resolve
-                    ]
-                    [ text "Solve" ]
+
+        Solving ->
+            div [ class "controller-container" ]
+                [ text "solving, have fun:)"
 
                 {-
-                   , div []
-                       [ label [] [ text "change dimension" ]
-                       , input [ onInput ChangeDimension ] [ text "hello" ]
+                   , button
+                       [ class "control-button dark-button"
+                       , onClick Replay
                        ]
+                       [ text "Play Again" ]
                 -}
                 ]
 
-        Solving ->
-            div [ class "controller" ]
-                [ text "solving"
-                , button
-                    [ class "replay-button"
-                    , onClick Replay
-                    ]
-                    [ text "Play Again" ]
-                ]
-
         ShowSolver ->
-            div [ class "controller" ]
+            div [ class "controller-container" ]
                 [ div
-                    [ class "replay-button"
+                    [ class "control-button dark-button"
                     , onClick Replay
                     ]
                     [ text "Replay" ]
+                , div
+                    [ class "control-button dark-button"
+                    , onClick Pause
+                    ]
+                    [ text "Pause" ]
+                ]
+
+        Paused ->
+            div [ class "controller-container" ]
+                [ div
+                    [ class "control-button dark-button"
+                    , onClick Replay
+                    ]
+                    [ text "Replay" ]
+                , div
+                    [ class "control-button dark-button"
+                    , onClick ResumePlaySolverResult
+                    ]
+                    [ text "Resume" ]
                 ]
 
         Finished ->
-            div [ class "controller" ]
+            div [ class "controller-container" ]
                 [ div [ class "victory" ]
                     [ h3 [ class "victory-title" ] [ text "YOU WIN" ]
                     , button
-                        [ class "replay-button"
+                        [ class "control-button dark-button"
                         , onClick Replay
                         ]
                         [ text "Play Again" ]

@@ -39,6 +39,7 @@ type GameStatus
     = Playing
     | Solving
     | ShowSolver
+    | Paused
     | Finished
 
 
