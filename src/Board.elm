@@ -215,13 +215,13 @@ slideTo dimension direction board =
 possibleDirection : Coord -> Coord -> Direction
 possibleDirection ( rowFrom, colFrom ) ( rowTo, colTo ) =
     if rowFrom < rowTo then
-        Right
-    else if rowFrom > rowTo then
-        Left
-    else if colFrom < colTo then
         Down
-    else
+    else if rowFrom > rowTo then
         Up
+    else if colFrom < colTo then
+        Right
+    else
+        Left
 
 
 opposite : Direction -> Direction

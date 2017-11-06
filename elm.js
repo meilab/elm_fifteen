@@ -9947,7 +9947,7 @@ var _meilab$elm_wexin_crypto$Board$possibleDirection = F2(
 		var _p6 = _p3._0;
 		var _p4 = _p1;
 		var _p5 = _p4._0;
-		return (_elm_lang$core$Native_Utils.cmp(_p6, _p5) < 0) ? _meilab$elm_wexin_crypto$Types$Right : ((_elm_lang$core$Native_Utils.cmp(_p6, _p5) > 0) ? _meilab$elm_wexin_crypto$Types$Left : ((_elm_lang$core$Native_Utils.cmp(_p3._1, _p4._1) < 0) ? _meilab$elm_wexin_crypto$Types$Down : _meilab$elm_wexin_crypto$Types$Up));
+		return (_elm_lang$core$Native_Utils.cmp(_p6, _p5) < 0) ? _meilab$elm_wexin_crypto$Types$Down : ((_elm_lang$core$Native_Utils.cmp(_p6, _p5) > 0) ? _meilab$elm_wexin_crypto$Types$Up : ((_elm_lang$core$Native_Utils.cmp(_p3._1, _p4._1) < 0) ? _meilab$elm_wexin_crypto$Types$Right : _meilab$elm_wexin_crypto$Types$Left));
 	});
 var _meilab$elm_wexin_crypto$Board$moveTile = F4(
 	function (tile, tileCoord, holeCoord, board) {
@@ -10498,15 +10498,17 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 				var newModel = A3(_meilab$elm_wexin_crypto$Solver$updateModel, model, _p0._0, _p0._1);
 				return {ctor: '_Tuple2', _0: newModel, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'TileClicked':
-				var _p4 = _p0._0;
-				var _p3 = _p0._1;
-				var _p2 = A3(_meilab$elm_wexin_crypto$Board$findAdjacentHole, model.board, model.dimension, _p3);
+				var _p5 = _p0._0;
+				var _p4 = _p0._1;
+				var _p2 = A3(_meilab$elm_wexin_crypto$Board$findAdjacentHole, model.board, model.dimension, _p4);
 				if (_p2.ctor === 'Nothing') {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					var newHoleCoord = _p3;
-					var newDistance = (model.distance - A3(_meilab$elm_wexin_crypto$Solver$manhattan, newHoleCoord, _p4, model.dimension)) + A3(_meilab$elm_wexin_crypto$Solver$manhattan, model.holeCoord, _p4, model.dimension);
-					var newBoard = A4(_meilab$elm_wexin_crypto$Board$moveTile, _p4, _p3, _p2._0, model.board);
+					var _p3 = _p2._0;
+					var direction = A2(_meilab$elm_wexin_crypto$Board$possibleDirection, _p4, _p3);
+					var newHoleCoord = _p4;
+					var newDistance = (model.distance - A3(_meilab$elm_wexin_crypto$Solver$manhattan, newHoleCoord, _p5, model.dimension)) + A3(_meilab$elm_wexin_crypto$Solver$manhattan, model.holeCoord, _p5, model.dimension);
+					var newBoard = A4(_meilab$elm_wexin_crypto$Board$moveTile, _p5, _p4, _p3, model.board);
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -10516,21 +10518,22 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 								status: A3(_meilab$elm_wexin_crypto$Solver$verify, newBoard, model.dimension, model.status),
 								holeCoord: newHoleCoord,
 								distance: newDistance,
-								moves: model.moves + 1
+								moves: model.moves + 1,
+								directions: {ctor: '::', _0: direction, _1: model.directions}
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'Undo':
-				var _p5 = _elm_lang$core$List$head(model.directions);
-				if (_p5.ctor === 'Just') {
+				var _p6 = _elm_lang$core$List$head(model.directions);
+				if (_p6.ctor === 'Just') {
 					return {
 						ctor: '_Tuple2',
 						_0: model,
 						_1: _meilab$elm_wexin_crypto$Utils$cmd(
 							A2(
 								_meilab$elm_wexin_crypto$Messages$DirectionMove,
-								_meilab$elm_wexin_crypto$Board$opposite(_p5._0),
+								_meilab$elm_wexin_crypto$Board$opposite(_p6._0),
 								_meilab$elm_wexin_crypto$Types$PopDirection))
 					};
 				} else {
@@ -10577,8 +10580,8 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 						{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
 				}
 			case 'PlaySolverResult':
-				var _p6 = _elm_lang$core$List$head(model.directions);
-				if (_p6.ctor === 'Just') {
+				var _p7 = _elm_lang$core$List$head(model.directions);
+				if (_p7.ctor === 'Just') {
 					return {
 						ctor: '_Tuple2',
 						_0: model,
@@ -10586,7 +10589,7 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 							{
 								ctor: '::',
 								_0: _meilab$elm_wexin_crypto$Utils$cmd(
-									A2(_meilab$elm_wexin_crypto$Messages$DirectionMove, _p6._0, _meilab$elm_wexin_crypto$Types$PopDirection)),
+									A2(_meilab$elm_wexin_crypto$Messages$DirectionMove, _p7._0, _meilab$elm_wexin_crypto$Types$PopDirection)),
 								_1: {
 									ctor: '::',
 									_0: A2(_meilab$elm_wexin_crypto$Utils$delay, _elm_lang$core$Time$second, _meilab$elm_wexin_crypto$Messages$PlaySolverResult),

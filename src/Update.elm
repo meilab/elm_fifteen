@@ -71,6 +71,9 @@ update msg model =
                         newHoleCoord =
                             coord
 
+                        direction =
+                            possibleDirection coord holeCoord
+
                         newDistance =
                             model.distance - (manhattan newHoleCoord tile model.dimension) + (manhattan model.holeCoord tile model.dimension)
                     in
@@ -80,6 +83,7 @@ update msg model =
                             , holeCoord = newHoleCoord
                             , distance = newDistance
                             , moves = model.moves + 1
+                            , directions = direction :: model.directions
                           }
                         , Cmd.none
                         )
