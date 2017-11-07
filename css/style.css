@@ -46,6 +46,17 @@ body{
   cursor: pointer;
 }
 
+.hole{
+  cursor: not-allowed;
+}
+
+.control-button,
+.disabled-button{
+  flex: 0 0 30%;
+  height: 38px;
+  line-height: 38px;
+  text-align: center;
+}
 .light-button{
   color: #556;
   border: 1px solid #7f7f6d;
@@ -89,6 +100,7 @@ body{
 }
 
 .disabled-button{
+  visibility: hidden;
   cursor: not-allowed;
   color: grey;
   border: 1px solid #471414;
@@ -110,14 +122,3 @@ body{
   text-shadow: #952a2a 1px 1px 2px,#591919 -1px -1px 2px;
 }
 
-.hole{
-  cursor: not-allowed;
-}
-
-.control-button,
-.disabled-button{
-  flex: 0 0 30%;
-  height: 38px;
-  line-height: 38px;
-  text-align: center;
-}

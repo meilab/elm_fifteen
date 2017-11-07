@@ -4,9 +4,14 @@ import Types exposing (Model, Coord, Board, GameStatus(..))
 import Board exposing (makeBoard, orderedTiles, emptyBoard)
 
 
-initModel : Int -> Model
-initModel dimension =
-    { board = (makeBoard dimension) (orderedTiles dimension)
+initBoard : Int -> Board
+initBoard dimension =
+    (makeBoard dimension) (orderedTiles dimension)
+
+
+initModel : Int -> Board -> Model
+initModel dimension board =
+    { board = board
     , status = Playing
     , dimension = dimension
     , holeCoord = ( dimension, dimension )

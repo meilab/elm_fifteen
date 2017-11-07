@@ -38,9 +38,11 @@ subscriptions model =
                    (always PlaySolverResult)
             -}
             Sub.none
-        else
+        else if model.status == Playing then
             ups
                 keyPressed
+        else
+            Sub.none
 
 
 main : Program Never Model Msg

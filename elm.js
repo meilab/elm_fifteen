@@ -10201,19 +10201,23 @@ var _meilab$elm_wexin_crypto$Messages$BoardGenerated = function (a) {
 	return {ctor: 'BoardGenerated', _0: a};
 };
 
-var _meilab$elm_wexin_crypto$Models$initModel = function (dimension) {
-	return {
-		board: A2(
-			_meilab$elm_wexin_crypto$Board$makeBoard,
-			dimension,
-			_meilab$elm_wexin_crypto$Board$orderedTiles(dimension)),
-		status: _meilab$elm_wexin_crypto$Types$Playing,
-		dimension: dimension,
-		holeCoord: {ctor: '_Tuple2', _0: dimension, _1: dimension},
-		distance: 0,
-		moves: 0,
-		directions: {ctor: '[]'}
-	};
+var _meilab$elm_wexin_crypto$Models$initModel = F2(
+	function (dimension, board) {
+		return {
+			board: board,
+			status: _meilab$elm_wexin_crypto$Types$Playing,
+			dimension: dimension,
+			holeCoord: {ctor: '_Tuple2', _0: dimension, _1: dimension},
+			distance: 0,
+			moves: 0,
+			directions: {ctor: '[]'}
+		};
+	});
+var _meilab$elm_wexin_crypto$Models$initBoard = function (dimension) {
+	return A2(
+		_meilab$elm_wexin_crypto$Board$makeBoard,
+		dimension,
+		_meilab$elm_wexin_crypto$Board$orderedTiles(dimension));
 };
 
 var _meilab$elm_wexin_crypto$Solver$manhattan = F3(
@@ -10463,7 +10467,10 @@ var _meilab$elm_wexin_crypto$Utils$cmd = function (msg) {
 var _meilab$elm_wexin_crypto$Update$init = function (dimension) {
 	return {
 		ctor: '_Tuple2',
-		_0: _meilab$elm_wexin_crypto$Models$initModel(dimension),
+		_0: A2(
+			_meilab$elm_wexin_crypto$Models$initModel,
+			dimension,
+			_meilab$elm_wexin_crypto$Models$initBoard(dimension)),
 		_1: A2(
 			_elm_lang$core$Random$generate,
 			_meilab$elm_wexin_crypto$Messages$BoardGenerated,
@@ -10501,42 +10508,52 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 				var newModel = A3(_meilab$elm_wexin_crypto$Solver$updateModel, model, _p0._0, _p0._1);
 				return {ctor: '_Tuple2', _0: newModel, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'TileClicked':
-				var _p5 = _p0._0;
-				var _p4 = _p0._1;
-				var _p2 = A3(_meilab$elm_wexin_crypto$Board$findAdjacentHole, model.board, model.dimension, _p4);
+				var _p6 = _p0._0;
+				var _p5 = _p0._1;
+				var _p2 = A3(_meilab$elm_wexin_crypto$Board$findAdjacentHole, model.board, model.dimension, _p5);
 				if (_p2.ctor === 'Nothing') {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					var _p3 = _p2._0;
-					var direction = A2(_meilab$elm_wexin_crypto$Board$possibleDirection, _p4, _p3);
-					var newHoleCoord = _p4;
-					var newDistance = (model.distance - A3(_meilab$elm_wexin_crypto$Solver$manhattan, newHoleCoord, _p5, model.dimension)) + A3(_meilab$elm_wexin_crypto$Solver$manhattan, model.holeCoord, _p5, model.dimension);
-					var newBoard = A4(_meilab$elm_wexin_crypto$Board$moveTile, _p5, _p4, _p3, model.board);
+					var _p4 = _p2._0;
+					var direction = A2(_meilab$elm_wexin_crypto$Board$possibleDirection, _p5, _p4);
+					var newHoleCoord = _p5;
+					var newDistance = (model.distance - A3(_meilab$elm_wexin_crypto$Solver$manhattan, newHoleCoord, _p6, model.dimension)) + A3(_meilab$elm_wexin_crypto$Solver$manhattan, model.holeCoord, _p6, model.dimension);
+					var newBoard = A4(_meilab$elm_wexin_crypto$Board$moveTile, _p6, _p5, _p4, model.board);
+					var newModel = function () {
+						var _p3 = model.status;
+						if (_p3.ctor === 'Playing') {
+							return _elm_lang$core$Native_Utils.update(
+								model,
+								{board: newBoard});
+						} else {
+							return A2(_meilab$elm_wexin_crypto$Models$initModel, model.dimension, newBoard);
+						}
+					}();
+					var newStatus = A3(_meilab$elm_wexin_crypto$Solver$verify, newBoard, model.dimension, newModel.status);
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
-							model,
+							newModel,
 							{
-								board: newBoard,
-								status: A3(_meilab$elm_wexin_crypto$Solver$verify, newBoard, model.dimension, model.status),
+								status: newStatus,
 								holeCoord: newHoleCoord,
 								distance: newDistance,
-								moves: model.moves + 1,
-								directions: {ctor: '::', _0: direction, _1: model.directions}
+								moves: newModel.moves + 1,
+								directions: {ctor: '::', _0: direction, _1: newModel.directions}
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'Undo':
-				var _p6 = _elm_lang$core$List$head(model.directions);
-				if (_p6.ctor === 'Just') {
+				var _p7 = _elm_lang$core$List$head(model.directions);
+				if (_p7.ctor === 'Just') {
 					return {
 						ctor: '_Tuple2',
 						_0: model,
 						_1: _meilab$elm_wexin_crypto$Utils$cmd(
 							A2(
 								_meilab$elm_wexin_crypto$Messages$DirectionMove,
-								_meilab$elm_wexin_crypto$Board$opposite(_p6._0),
+								_meilab$elm_wexin_crypto$Board$opposite(_p7._0),
 								_meilab$elm_wexin_crypto$Types$PopDirection))
 					};
 				} else {
@@ -10583,10 +10600,10 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 						{ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
 				}
 			case 'PlaySolverResult':
-				var _p7 = _elm_lang$core$List$head(model.directions);
-				if (_p7.ctor === 'Just') {
-					var _p8 = model.status;
-					if (_p8.ctor === 'ShowSolver') {
+				var _p8 = model.status;
+				if (_p8.ctor === 'ShowSolver') {
+					var _p9 = _elm_lang$core$List$head(model.directions);
+					if (_p9.ctor === 'Just') {
 						return {
 							ctor: '_Tuple2',
 							_0: model,
@@ -10594,7 +10611,7 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 								{
 									ctor: '::',
 									_0: _meilab$elm_wexin_crypto$Utils$cmd(
-										A2(_meilab$elm_wexin_crypto$Messages$DirectionMove, _p7._0, _meilab$elm_wexin_crypto$Types$PopDirection)),
+										A2(_meilab$elm_wexin_crypto$Messages$DirectionMove, _p9._0, _meilab$elm_wexin_crypto$Types$PopDirection)),
 									_1: {
 										ctor: '::',
 										_0: A2(_meilab$elm_wexin_crypto$Utils$delay, _elm_lang$core$Time$second, _meilab$elm_wexin_crypto$Messages$PlaySolverResult),
@@ -10603,16 +10620,16 @@ var _meilab$elm_wexin_crypto$Update$update = F2(
 								})
 						};
 					} else {
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{status: _meilab$elm_wexin_crypto$Types$Finished}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
 					}
 				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{status: _meilab$elm_wexin_crypto$Types$Finished}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'Pause':
 				return {
@@ -11165,7 +11182,7 @@ var _meilab$elm_wexin_crypto$Main$subscriptions = function (model) {
 			return _meilab$elm_wexin_crypto$Messages$OtherKeyPressed(code);
 		}
 	};
-	return _elm_lang$core$Native_Utils.eq(model.status, _meilab$elm_wexin_crypto$Types$ShowSolver) ? _elm_lang$core$Platform_Sub$none : _elm_lang$keyboard$Keyboard$ups(keyPressed);
+	return _elm_lang$core$Native_Utils.eq(model.status, _meilab$elm_wexin_crypto$Types$ShowSolver) ? _elm_lang$core$Platform_Sub$none : (_elm_lang$core$Native_Utils.eq(model.status, _meilab$elm_wexin_crypto$Types$Playing) ? _elm_lang$keyboard$Keyboard$ups(keyPressed) : _elm_lang$core$Platform_Sub$none);
 };
 var _meilab$elm_wexin_crypto$Main$main = _elm_lang$html$Html$program(
 	{

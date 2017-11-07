@@ -15,7 +15,7 @@ import Time exposing (Time)
 
 init : Int -> ( Model, Cmd Msg )
 init dimension =
-    ( (initModel dimension), generate BoardGenerated (randomBoard dimension) )
+    ( (initModel dimension (initBoard dimension)), generate BoardGenerated (randomBoard dimension) )
 
 
 
@@ -74,16 +74,26 @@ update msg model =
                         direction =
                             possibleDirection coord holeCoord
 
+                        newModel =
+                            case model.status of
+                                Playing ->
+                                    { model | board = newBoard }
+
+                                _ ->
+                                    initModel model.dimension newBoard
+
+                        newStatus =
+                            verify newBoard model.dimension newModel.status
+
                         newDistance =
                             model.distance - (manhattan newHoleCoord tile model.dimension) + (manhattan model.holeCoord tile model.dimension)
                     in
-                        ( { model
-                            | board = newBoard
-                            , status = verify newBoard model.dimension model.status
+                        ( { newModel
+                            | status = newStatus
                             , holeCoord = newHoleCoord
                             , distance = newDistance
-                            , moves = model.moves + 1
-                            , directions = direction :: model.directions
+                            , moves = newModel.moves + 1
+                            , directions = direction :: newModel.directions
                           }
                         , Cmd.none
                         )
@@ -115,10 +125,10 @@ update msg model =
                 ( model, Cmd.none )
 
         PlaySolverResult ->
-            case List.head model.directions of
-                Just direction ->
-                    case model.status of
-                        ShowSolver ->
+            case model.status of
+                ShowSolver ->
+                    case List.head model.directions of
+                        Just direction ->
                             ( model
                             , Cmd.batch
                                 [ cmd (DirectionMove direction PopDirection)
@@ -126,11 +136,11 @@ update msg model =
                                 ]
                             )
 
-                        _ ->
-                            ( model, Cmd.none )
+                        Nothing ->
+                            ( { model | status = Finished }, Cmd.none )
 
-                Nothing ->
-                    ( { model | status = Finished }, Cmd.none )
+                _ ->
+                    ( model, Cmd.none )
 
         Pause ->
             ( { model | status = Paused }, Cmd.none )
